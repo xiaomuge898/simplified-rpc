@@ -25,10 +25,10 @@ http://127.0.0.1:60001/encrypt?client_id=xiaomuge&project_type=tiktok&types=X-Bo
 `{'status': 'ok', 'msg': 'MC4tQC4uN9iMvo21zGKkpJofgT-9NBaXLjfvbc4Wft0gh1AzF5LLdVF8Yh14rnmzSjZ9jLJUuOkFSancg8GBrHbWclYE-7h7OL/pp-I4Nmbt0OItg/jHwpsjkoklzFAbkrKX98t1XRTU5j7SBbBdoApJ85B0GuUsFOT2Mu9E-lE0RIw8Y7jke-cpysePDiBDvyXK7nf/g0GC9N6u1kVzPxmDLahJ5vH8QdFcpBI29t3Z12ZsCGnoV5sqk0Z2BiDWdWKLtxektD-T'}`
 
 ### 8.操作如下
-<img src="https://raw.githubusercontent.com/xiaomuge898/xiaomuge898/refs/heads/main/simplified-rpc-img/1.png" width="600" />
-<img src="https://raw.githubusercontent.com/xiaomuge898/xiaomuge898/refs/heads/main/simplified-rpc-img/2.png" width="600" />
-<img src="https://raw.githubusercontent.com/xiaomuge898/xiaomuge898/refs/heads/main/simplified-rpc-img/3.png" width="600" />
-<img src="https://raw.githubusercontent.com/xiaomuge898/xiaomuge898/refs/heads/main/simplified-rpc-img/4.png" width="600" />
-<img src="https://raw.githubusercontent.com/xiaomuge898/xiaomuge898/refs/heads/main/simplified-rpc-img/5.png" width="600" />
-<img src="https://raw.githubusercontent.com/xiaomuge898/xiaomuge898/refs/heads/main/simplified-rpc-img/6.png" width="600" />
+<img src="https://raw.githubusercontent.com/xiaomuge898/xiaomuge898/refs/heads/main/simplified-rpc-img/1.png" width="800" />
+<img src="https://raw.githubusercontent.com/xiaomuge898/xiaomuge898/refs/heads/main/simplified-rpc-img/2.png" width="800" />
+<img src="https://raw.githubusercontent.com/xiaomuge898/xiaomuge898/refs/heads/main/simplified-rpc-img/3.png" width="800" />
+<img src="https://raw.githubusercontent.com/xiaomuge898/xiaomuge898/refs/heads/main/simplified-rpc-img/4.png" width="800" />
+<img src="https://raw.githubusercontent.com/xiaomuge898/xiaomuge898/refs/heads/main/simplified-rpc-img/5.png" width="800" />
+<img src="https://raw.githubusercontent.com/xiaomuge898/xiaomuge898/refs/heads/main/simplified-rpc-img/6.png" width="800" />
 <img src="https://raw.githubusercontent.com/xiaomuge898/xiaomuge898/refs/heads/main/simplified-rpc-img/2026-01-27_19-31-08.gif" width="1200" />
