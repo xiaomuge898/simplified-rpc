@@ -79,10 +79,18 @@ class WSManager:
         payload = {"task_id": task_id, "data": data}
         if isinstance(data, dict):
             payload = {"task_id": task_id, **data}
-        await websocket.send(json.dumps(payload))
-        result = await asyncio.wait_for(future, timeout=10)  # 最多等待10秒
-        self.tasks.pop(task_id, None)
-        return result
+        try:
+            await websocket.send(json.dumps(payload))
+            result = await asyncio.wait_for(future, timeout=10)  # 最多等待10秒
+            self.tasks.pop(task_id, None)
+            return result
+        except asyncio.TimeoutError:
+            return "浏览器处理超时"
+        except Exception as e:
+            return f"ws异常: {e}"
+        finally:
+            # ✅ 无论成功、失败、超时，都必须清理
+            self.tasks.pop(task_id, None)
 
     async def run_server(self):
         async with websockets.serve(

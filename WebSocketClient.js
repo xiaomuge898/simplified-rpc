@@ -15,15 +15,6 @@ class WebSocketClient {
             // 连接建立时触发
             console.log("✅ WebSocket 已连接");
             this.ws.send("hi");
-            // 防止重复定时（若断开重连）
-            if (this.keepAliveTimer) clearInterval(this.keepAliveTimer);
-            // 每隔秒发送一次“hi”
-            this.keepAliveTimer = setInterval(() => {
-                if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-                    this.ws.send("hi");
-                    console.log("💓 心跳已发送");
-                }
-            }, 10000);
         };
         this.ws.onmessage = (event) => {
             // 客户端接收到服务器数据时触发
@@ -33,13 +24,11 @@ class WebSocketClient {
                 return null;
             };
             console.log('%cWS接收到的信息', 'padding: 3px; border-radius: 7px; color: rgb(255, 255, 255); background-color: rgb(0, 158, 61);', event.data)
-            // 回调函数自己写
             this.onmessageCallback(event);
         };
         this.ws.onclose = (e) => {
             // 关闭连接触发
-            console.warn("⚠️ WebSocket 已关闭:", e.code, e.reason);
-            if (this.keepAliveTimer) clearInterval(this.keepAliveTimer);
+            console.warn("⚠️ WebSocket 已关闭:", e);
             this.ws = null;
         };
         this.ws.onerror = (err) => {
@@ -48,7 +37,7 @@ class WebSocketClient {
     };
 
     onmessageCallback(event){
-        // 回调函数执行
+        // 要操作的加密或解密方法 自己写
         console.log('%cWS接收到的信息执行处理', 'padding: 3px; border-radius: 7px; color: rgb(255, 255, 255); background-color: rgb(0, 158, 61);', event.data);
         const task = JSON.parse(event.data);
         const { task_id, ...args} = task;
@@ -58,6 +47,8 @@ class WebSocketClient {
             encrypted = yn(args.i, args.t);
         } else if (args.types === 'X-Gnarly'){
             encrypted = bn(args.i, args.t);
+        } else if (args.types === 'sign'){
+            encrypted = Qd("mark=LP&version=1.0&expire_time=" + parseInt(+new Date() / 1000));
         }
         this.ws.send(JSON.stringify({ task_id, result: encrypted }));
     }
