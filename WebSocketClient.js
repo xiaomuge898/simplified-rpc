@@ -5,6 +5,8 @@ class WebSocketClient {
     constructor(url) {
         this.url = url;
         this.ws = null;
+        this.keepAliveTimer = null;
+        this.manualClose = false;
         this.connect();
     };
 
@@ -15,6 +17,15 @@ class WebSocketClient {
             // 连接建立时触发
             console.log("✅ WebSocket 已连接");
             this.ws.send("hi");
+            // 防止重复定时（若断开重连）
+            if (this.keepAliveTimer) clearInterval(this.keepAliveTimer);
+            // 每隔秒发送一次“hi”
+            this.keepAliveTimer = setInterval(() => {
+                if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+                    this.ws.send("hi");
+                    console.log("💓 心跳已发送");
+                }
+            }, 10000);
         };
         this.ws.onmessage = (event) => {
             // 客户端接收到服务器数据时触发
@@ -29,7 +40,14 @@ class WebSocketClient {
         this.ws.onclose = (e) => {
             // 关闭连接触发
             console.warn("⚠️ WebSocket 已关闭:", e);
+            if (this.keepAliveTimer) clearInterval(this.keepAliveTimer);
             this.ws = null;
+            if (!this.manualClose){
+                setTimeout(() => {
+                    console.log("重连中...");
+                    this.connect()
+                }, 500);
+            }
         };
         this.ws.onerror = (err) => {
             console.error("❌ WebSocket 出错:", err);
@@ -54,6 +72,7 @@ class WebSocketClient {
     }
 
     close() {
+        this.manualClose = true;
         // 关闭连接
         this.ws.close();
     };
