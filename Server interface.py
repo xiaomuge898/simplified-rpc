@@ -142,4 +142,4 @@ async def encrypt_post(request: Request, client_id: str, project_type: str):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("Server interface:app", host="0.0.0.0", port=60001, reload=True)
+    uvicorn.run("Server interface:app", host="0.0.0.0", port=60001)
