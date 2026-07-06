@@ -2,7 +2,7 @@
 ![Python Version](https://img.shields.io/badge/Python-3.12-blue)
 
 ### 1. 安装 *requirements.txt* 内的模块
-### 2. 运行 *Server interface.py* 服务
+### 2. 运行 *server_interface.py* 服务
 `自定义修改ws的连接端口 和 API接口的端口号（接口端口号默认60001、ws端口号默认8765）`
 ### 3. 打开浏览器，对要逆向的参数位置打断点，当参数断住后，立马注入 *WebSocketClient.js*
 ### 4. 注入的时候需要修改一下回调函数里的加密逻辑方法
