@@ -1,30 +1,84 @@
-### 简易版RPC，参数逆向调用临时使用
+### 简易版 RPC，导出浏览器内部方法临时使用
 ![Python Version](https://img.shields.io/badge/Python-3.12-blue)
+
+### 项目作用
+本项目用于把浏览器页面里的内部方法临时导出成 FastAPI 接口，方便本机或局域网直接调用浏览器运行时里的加密、解密、签名等函数。核心逻辑是在浏览器里注入 `WebSocketClient.js`，通过 `onmessageCallback` 判断 `types` 并调用页面内部方法，最后把处理结果返回给接口调用方。
+
+### 通信流程
+```text
+参数 -> FastAPI 接口 -> ws send -> 浏览器 WebSocket 接收
+-> onmessageCallback 判断方法类型并处理 -> 浏览器 ws 返回结果
+-> FastAPI 返回接口响应 -> 调用方拿到浏览器内部方法处理后的结果
+```
 
 ### 1. 安装 *requirements.txt* 内的模块
 ### 2. 运行 *server_interface.py* 服务
-`自定义修改ws的连接端口 和 API接口的端口号（接口端口号默认60001、ws端口号默认8765）`
-### 3. 打开浏览器，对要逆向的参数位置打断点，当参数断住后，立马注入 *WebSocketClient.js*
-### 4. 注入的时候需要修改一下回调函数里的加密逻辑方法
-### 5. 注入完成后，放开debugger, 然后使用下面命令连接 ws 
+启动后会同时开启：
+- FastAPI 接口服务：默认 `http://127.0.0.1:60001`
+- WebSocket 服务：默认 `ws://127.0.0.1:8765`
+
+如需修改端口，可以直接在 `server_interface.py` 里调整 API 端口和 ws 端口。
+
+### 3. 打开浏览器，对要导出的内部方法位置打断点，并注入 *WebSocketClient.js*
+例如加密、解密、签名参数生成位置。
+
+### 4. 在 *WebSocketClient.js* 里修改导出逻辑
+主要修改 `onmessageCallback` 里的处理逻辑，根据服务端传来的 `types` 调用浏览器页面内部方法。
+
+这个函数就是自定义导出方法的位置。`types` 用来区分要调用哪个浏览器内部方法，`i`、`t` 等字段是从 FastAPI 接口传进来的自定义参数，处理完成后必须带着原来的 `task_id` 返回结果。
+
+```js
+onmessageCallback(event){
+    // 要操作的加密或解密方法，按自己的项目逻辑修改这里
+    console.log('%cWS接收到的信息执行处理', 'padding: 3px; border-radius: 7px; color: rgb(255, 255, 255); background-color: rgb(0, 158, 61);', event.data);
+    const task = JSON.parse(event.data);
+    const { task_id, ...args } = task;
+
+    // ======== 自定义导出方法逻辑 ========
+    var encrypted = null;
+    if (args.types === 'X-Bogus'){
+        encrypted = yn(args.i, args.t);
+    } else if (args.types === 'X-Gnarly'){
+        encrypted = bn(args.i, args.t);
+    } else if (args.types === 'sign'){
+        encrypted = Qd("mark=LP&version=1.0&expire_time=" + parseInt(+new Date() / 1000));
+    }
+
+    this.ws.send(JSON.stringify({ task_id, result: encrypted }));
+}
+```
+
+### 5. 注入完成后，放开 debugger，然后连接 ws
 ```js
 // client_id - 用户/客户端 （标识）
 // project_type - 项目类型 （注册 - 支持一个用户注册多个项目类型）
 $s_ws = new WebSocketClient('ws://localhost:8765?client_id=xiaomuge&project_type=tiktok');
 ```
-### 6. 连接成功后, 可以通过浏览器或其他请求方式访问下面的连接地址，（如果有修改*Server interface.py* 服务，则需要根据路径访问）
+### 6. 连接成功后，通过 FastAPI 调用浏览器内部方法
+GET 示例：
 ```
 // client_id - 用户/客户端（使用已注册过的）
 // project_type - 项目类型 （使用已注册过的）
 // types 、i、t 都属于自定义的传参内容
-http://127.0.0.1:60001/encrypt?client_id=xiaomuge&project_type=tiktok&types=X-Bogus&i=msToken=x8XPnOSNCDk_Awa7ANfn96NYF7c0L5siXQ6imXu7bav_va_3fxg2RgyPqvzRwzGbALN6kn_eK1MmF-yQifjn5WS7bt2R0yM7aECyVORWMelbgdqcliJ&t={}
+http://127.0.0.1:60001/encrypt_get?client_id=xiaomuge&project_type=tiktok&types=X-Bogus&i=msToken=你的参数&t={}
 ```
-### 7.返回的数据
+
+POST 示例见 `demo.py`，接口为：
+```text
+http://127.0.0.1:60001/encrypt_post?client_id=xiaomuge&project_type=tiktok
+```
+
+### 7. 返回的数据
 `{'status': 'ok', 'msg': 'DFSzswVLUHydUWXFCuJl7z/Rssy6'}`
 
 `{'status': 'ok', 'msg': 'MC4tQC4uN9iMvo21zGKkpJofgT-9NBaXLjfvbc4Wft0gh1AzF5LLdVF8Yh14rnmzSjZ9jLJUuOkFSancg8GBrHbWclYE-7h7OL/pp-I4Nmbt0OItg/jHwpsjkoklzFAbkrKX98t1XRTU5j7SBbBdoApJ85B0GuUsFOT2Mu9E-lE0RIw8Y7jke-cpysePDiBDvyXK7nf/g0GC9N6u1kVzPxmDLahJ5vH8QdFcpBI29t3Z12ZsCGnoV5sqk0Z2BiDWdWKLtxektD-T'}`
 
-### 8.操作如下
+### 8. 注意事项
+- `client_id` 和 `project_type` 必须和浏览器 ws 连接时注册的一致。
+- `types` 是自定义方法标识，需要和 `WebSocketClient.js` 的 `onmessageCallback` 判断逻辑一致。
+- 如果在局域网使用，请注意端口暴露风险；该工具默认没有鉴权，建议仅在可信环境里使用。
+
+### 9. 操作如下
 <img src="https://raw.githubusercontent.com/xiaomuge898/xiaomuge898/refs/heads/main/simplified-rpc-img/1.png" width="800" />
 <img src="https://raw.githubusercontent.com/xiaomuge898/xiaomuge898/refs/heads/main/simplified-rpc-img/2.png" width="800" />
 <img src="https://raw.githubusercontent.com/xiaomuge898/xiaomuge898/refs/heads/main/simplified-rpc-img/3.png" width="800" />
